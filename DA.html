@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos Autorizativos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="DA.css">
+  <link rel="stylesheet" href="shared-nav.css">
+</head>
+<body>
+
+<!-- ── NAV MENU ────────────────────────────────────────────────────────── -->
+<nav class="top-nav">
+  <a class="nav-link active" href="DA.html">Documentos Autorizativos</a>
+  <a class="nav-link" href="CA.html">Condicionantes Ambientais</a>
+  <a class="nav-link" href="CNC.html">Controle de Não Conformidades</a>
+</nav>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">DOCUMENTOS<span> AUTORIZATIVOS</span></div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <div class="inbox-btn-wrap">
+      <button class="btn-inbox" onclick="toggleInbox()" title="Notificações">
+        🔔 <span class="inbox-badge" id="inboxBadge" style="display:none"></span>
+      </button>
+      <div class="inbox-panel" id="inboxPanel">
+        <div class="inbox-header">
+          <span class="inbox-title">Notificações</span>
+          <button class="inbox-clear" onclick="clearInbox()">Limpar</button>
+        </div>
+        <div class="inbox-list" id="inboxList">
+          <div class="inbox-empty">Nenhuma notificação</div>
+        </div>
+      </div>
+    </div>
+    <div class="record-count"><strong id="totalCount">0</strong> registros</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── FORM SECTION ─────────────────────────────────────────────────── -->
+  <section class="form-section">
+    <div class="section-header">
+      <span class="section-tag">Novo Registro</span>
+      <h2 class="section-title">Inserir Documento</h2>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="field-group">
+        <label for="tema">Tema Associado</label>
+        <input type="text" id="tema" placeholder="Ex: Licença Ambiental">
+      </div>
+
+      <div class="field-group">
+        <label for="orgao">Órgão Emitente</label>
+        <input type="text" id="orgao" placeholder="Ex: IBAMA, ANATEL...">
+      </div>
+
+      <div class="field-group">
+        <label for="natureza">Natureza do Documento</label>
+        <select id="natureza">
+          <option value="">Selecione...</option>
+          <option>Portaria</option>
+          <option>Resolução</option>
+          <option>Decreto</option>
+          <option>Instrução Normativa</option>
+          <option>Circular</option>
+          <option>Contrato</option>
+          <option>Ofício</option>
+          <option>Memorando</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label for="numero">Número do Documento</label>
+        <input type="text" id="numero" placeholder="Ex: 001/2024">
+      </div>
+
+      <div class="field-group">
+        <label for="procedimento">Procedimento</label>
+        <input type="text" id="procedimento" placeholder="Ex: Protocolo, Autuação...">
+      </div>
+
+      <div class="field-group">
+        <label for="interessado">Interessado</label>
+        <input type="text" id="interessado" placeholder="Ex: Nome ou entidade">
+      </div>
+
+      <div class="field-group">
+        <label for="ano">Data de Emissão</label>
+        <input type="date" id="ano">
+      </div>
+
+      <div class="field-group">
+        <label for="validade">Data de Vencimento</label>
+        <input type="date" id="validade">
+      </div>
+
+      <div class="field-group">
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="">Selecione...</option>
+          <option value="valida">Válida</option>
+          <option value="valida_renovar">Válida (A Renovar)</option>
+          <option value="valida_analise">Válida (Em Análise)</option>
+          <option value="vencida">Vencida</option>
+          <option value="em_encerramento">Em Processo De Encerramento</option>
+          <option value="em_tratativas">Em Tratativas</option>
+          <option value="sem_efeito">Sem Efeito</option>
+          <option value="nenhum">-</option>
+        </select>
+      </div>
+
+      <div class="field-group wide">
+        <label for="teor">Teor do Documento</label>
+        <textarea id="teor" placeholder="Descreva o teor/conteúdo principal do documento..."></textarea>
+      </div>
+
+      <div class="field-group">
+        <label for="docAnexo">Documento Anexo (URL)</label>
+        <input type="text" id="docAnexo" placeholder="Ex: https://drive.google.com/...">
+      </div>
+
+      <div class="field-group full">
+        <label for="observacao">Observação</label>
+        <textarea id="observacao" placeholder="Observações adicionais, notas internas..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-add" onclick="addRecord()">＋ Adicionar Registro</button>
+      <button class="btn-clear" onclick="clearForm()">Limpar</button>
+      <span class="form-hint" id="editHint"></span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── TABLE SECTION ─────────────────────────────────────────────────── -->
+  <section class="table-section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--accent2); color:var(--bg);">Registros</span>
+      <h2 class="section-title">Tabela de Documentos</h2>
+    </div>
+
+    <div class="table-toolbar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7a90" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Buscar em todos os campos..." oninput="filterTable()">
+      </div>
+      <div class="toolbar-actions">
+        <!-- Hidden file input for Excel import -->
+        <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
+        <button class="btn-import" onclick="document.getElementById('excelFileInput').click()">↓ Importar Excel</button>
+        <div class="export-dropdown" id="exportDropdown">
+          <button class="btn-export" onclick="toggleExportMenu()">↑ Exportar ▾</button>
+          <div class="export-menu" id="exportMenu">
+            <button onclick="exportExcel(); toggleExportMenu()">📊 Exportar Excel (.xlsx)</button>
+            <button onclick="exportPDF(); toggleExportMenu()">📄 Exportar PDF</button>
+          </div>
+        </div>
+        <button class="btn-painel" onclick="openPainel()">◎ Painel</button>
+        <button class="btn-clear-table" onclick="clearTable()">✕ Limpar Tabela</button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="docsTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Tema Associado</th>
+            <th onclick="sortTable(1)">Órgão Emitente</th>
+            <th onclick="sortTable(2)">Natureza do Documento</th>
+            <th onclick="sortTable(3)">Número do Documento</th>
+            <th onclick="sortTable(4)">Procedimento</th>
+            <th onclick="sortTable(5)">Teor Documento</th>
+            <th onclick="sortTable(6)">Interessado</th>
+            <th onclick="sortTable(7)">Data de Emissão</th>
+            <th onclick="sortTable(8)">Data de Vencimento</th>
+            <th onclick="sortTable(9)">Status</th>
+            <th>Documento Anexo</th>
+            <th onclick="sortTable(10)">Observação</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="13">
+              <div class="empty-state">
+                <div class="empty-icon">📋</div>
+                <p>Nenhum registro encontrado.<br>Preencha o formulário acima para adicionar documentos.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination bar -->
+    <div class="pagination-bar" id="paginationBar">
+      <div class="pagination-info" id="paginationInfo"></div>
+      <div class="pagination-controls" id="paginationControls"></div>
+      <div class="pagination-per-page">
+        <span>Linhas por página:</span>
+        <select id="perPageSelect" onchange="changePerPage(this.value)">
+          <option value="15" selected>15</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── EDIT MODAL ──────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar Registro</span>
+      <button class="btn-modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-grid" id="modalFormGrid">
+      <!-- Populated dynamically by app.js → openEdit() -->
+    </div>
+    <div class="form-actions" style="margin-top: 24px;">
+      <button class="btn-add" onclick="saveEdit()">✓ Salvar Alterações</button>
+      <button class="btn-clear" onclick="closeModal()">Cancelar</button>
+      <button class="btn-reset-auto" onclick="resetToAuto()" title="Remove a trava manual e deixa o status ser gerenciado automaticamente pela data de vencimento">🔓 Deixar Automático</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── FIXED BOTTOM SCROLLBAR MIRROR ──────────────────────────────────── -->
+<div class="table-scroll-mirror" id="scrollMirror">
+  <div class="table-scroll-mirror-inner" id="scrollMirrorInner"></div>
+</div>
+
+<!-- ── PAINEL MODAL ────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="painelModal">
+  <div class="modal painel-modal">
+    <div class="modal-header">
+      <div>
+        <span class="modal-title">Painel de Status</span>
+        <span id="painelDate" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);margin-left:16px;letter-spacing:2px;text-transform:uppercase;"></span>
+      </div>
+      <button class="btn-modal-close" onclick="closePainel()">×</button>
+    </div>
+    <div class="painel-grid">
+      <!-- Chart 1: Status bar chart -->
+      <div class="painel-card">
+        <div class="painel-card-title">Status dos Documentos Autorizativos</div>
+        <canvas id="chartStatus"></canvas>
+      </div>
+      <!-- Chart 2: Tema horizontal bar chart -->
+      <div class="painel-card painel-card-scroll">
+        <div class="painel-card-title">Grupo por Tema Associado</div>
+        <canvas id="chartTema"></canvas>
+      </div>
+    </div>
+    <!-- Totals strip -->
+    <div class="painel-totals" id="painelTotals"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="DA.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+/* ── SHARED TOP NAV (used by DA.html) ── */
+.top-nav {
+  display: flex;
+  gap: 0;
+  background: #0d2d4a;
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.nav-link {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  padding: 14px 20px;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.nav-link:hover { color: #fff; }
+.nav-link.active { color: #fff; border-bottom-color: #60d4f0; }

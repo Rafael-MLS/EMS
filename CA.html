@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Condicionantes Ambientais</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="CA.css">
+</head>
+<body>
+
+<!-- ── NAV MENU ────────────────────────────────────────────────────────── -->
+<nav class="top-nav">
+  <a class="nav-link" href="DA.html">Documentos Autorizativos</a>
+  <a class="nav-link active" href="CA.html">Condicionantes Ambientais</a>
+  <a class="nav-link" href="CNC.html">Controle de Não Conformidades</a>
+</nav>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">CONDICIONANTES<span> AMBIENTAIS</span></div>
+  <div style="display:flex;align-items:center;gap:20px;">
+    <div class="inbox-btn-wrap">
+      <button class="btn-inbox" onclick="toggleInbox()" title="Notificações">
+        🔔 <span class="inbox-badge" id="inboxBadge" style="display:none"></span>
+      </button>
+      <div class="inbox-panel" id="inboxPanel">
+        <div class="inbox-header">
+          <span class="inbox-title">Notificações</span>
+          <button class="inbox-clear" onclick="clearInbox()">Limpar</button>
+        </div>
+        <div class="inbox-list" id="inboxList">
+          <div class="inbox-empty">Nenhuma notificação</div>
+        </div>
+      </div>
+    </div>
+    <div class="record-count"><strong id="totalCount">0</strong> registros</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── FORM SECTION ─────────────────────────────────────────────────── -->
+  <section class="form-section">
+    <div class="section-header">
+      <span class="section-tag">Novo Registro</span>
+      <h2 class="section-title">Inserir Condicionante</h2>
+    </div>
+
+    <div class="form-grid">
+
+      <div class="field-group">
+        <label for="unidade">Unidade / Obra</label>
+        <input type="text" id="unidade" placeholder="Ex: Infraestrutura Urbana">
+      </div>
+
+      <div class="field-group">
+        <label for="entidade">Entidade Responsável</label>
+        <input type="text" id="entidade" placeholder="Ex: SEINFRA">
+      </div>
+
+      <div class="field-group">
+        <label for="correspavel">Entidade Corresponsável</label>
+        <input type="text" id="correspavel" placeholder="Ex: CNMD">
+      </div>
+
+      <div class="field-group">
+        <label for="docAutorizativo">Documento Autorizativo</label>
+        <input type="text" id="docAutorizativo" placeholder="Ex: Licença Ambiental">
+      </div>
+
+      <div class="field-group">
+        <label for="numDoc">Nº Documento</label>
+        <input type="text" id="numDoc" placeholder="Ex: Portaria nº 31/2021">
+      </div>
+
+      <div class="field-group">
+        <label for="emitente">Emitente</label>
+        <input type="text" id="emitente" placeholder="Ex: SEDUR">
+      </div>
+
+      <div class="field-group">
+        <label for="docAnexo">Documento Anexo (URL)</label>
+        <input type="text" id="docAnexo" placeholder="Ex: https://drive.google.com/...">
+      </div>
+
+
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-add" onclick="addRecord()">＋ Adicionar Registro</button>
+      <button class="btn-clear" onclick="clearForm()">Limpar</button>
+      <span class="form-hint" id="editHint"></span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── TABLE SECTION ─────────────────────────────────────────────────── -->
+  <section class="table-section">
+    <div class="section-header">
+      <span class="section-tag" style="background:var(--accent2); color:#fff;">Registros</span>
+      <h2 class="section-title">Tabela de Condicionantes</h2>
+    </div>
+
+    <div class="table-toolbar">
+      <div class="search-box">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a7a90" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Buscar em todos os campos..." oninput="filterTable()">
+      </div>
+      <div class="toolbar-actions">
+        <!-- Hidden file input for Excel import -->
+        <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" onchange="importExcel(event)">
+        <button class="btn-import" onclick="document.getElementById('excelFileInput').click()">↓ Importar Excel</button>
+        <div class="export-dropdown" id="exportDropdown">
+          <button class="btn-export" onclick="toggleExportMenu()">↑ Exportar ▾</button>
+          <div class="export-menu" id="exportMenu">
+            <button onclick="exportExcel(); toggleExportMenu()">📊 Exportar Excel (.xlsx)</button>
+            <button onclick="exportPDF(); toggleExportMenu()">📄 Exportar PDF</button>
+          </div>
+        </div>
+        <button class="btn-clear-table" onclick="clearTable()">✕ Limpar Tabela</button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="caTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Unidade / Obra</th>
+            <th onclick="sortTable(1)">Entidade Responsável</th>
+            <th onclick="sortTable(2)">Entidade Corresponsável</th>
+            <th onclick="sortTable(3)">Documento Autorizativo</th>
+            <th onclick="sortTable(4)">Nº Documento</th>
+            <th onclick="sortTable(5)">Emitente</th>
+            <th onclick="sortTable(6)">Documento Anexo</th>
+            <th onclick="sortTable(7)">Condicionantes</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="9">
+              <div class="empty-state">
+                <div class="empty-icon">🌿</div>
+                <p>Nenhum registro encontrado.<br>Preencha o formulário acima para adicionar condicionantes.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination bar -->
+    <div class="pagination-bar" id="paginationBar">
+      <div class="pagination-info" id="paginationInfo"></div>
+      <div class="pagination-controls" id="paginationControls"></div>
+      <div class="pagination-per-page">
+        <span>Linhas por página:</span>
+        <select id="perPageSelect" onchange="changePerPage(this.value)">
+          <option value="15" selected>15</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ── EDIT MODAL ──────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar Registro</span>
+      <button class="btn-modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-grid" id="modalFormGrid"></div>
+    <div class="form-actions" style="margin-top: 24px;">
+      <button class="btn-add" onclick="saveEdit()">✓ Salvar Alterações</button>
+      <button class="btn-clear" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONDICIONANTES MODAL ──────────────────────────────────────────────── -->
+<div class="modal-overlay cond-modal-overlay" id="condModal">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <span class="modal-title" id="condModalTitle">Condicionantes</span>
+      <button class="btn-modal-close" onclick="closeCondicionantesModal()">×</button>
+    </div>
+    <div id="condHeaderForm"></div>
+    <div class="cond-toolbar">
+      <button class="btn-add" onclick="addCondicionante()">＋ Adicionar</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-export" onclick="exportCondExcel()">↑ Excel</button>
+        <button class="btn-export" onclick="exportCondPDF()">↑ PDF</button>
+      </div>
+    </div>
+    <div class="table-wrapper" style="max-height:55vh;margin-top:12px;">
+      <table id="condTable">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Condicionantes / Exigências</th>
+            <th>Prazo Execução / Próx. Evento</th>
+            <th>Status</th>
+            <th>OBS</th>
+            <th>Documentos Comprobatórios</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="condTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONDICIONANTE EDIT MODAL ───────────────────────────────────────────── -->
+<div class="modal-overlay cond-edit-overlay" id="condEditModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Editar Condicionante</span>
+      <button class="btn-modal-close" onclick="closeCondicionanteEdit()">×</button>
+    </div>
+    <div class="form-grid" id="condEditFormGrid"></div>
+    <div class="form-actions" style="margin-top:24px;">
+      <button class="btn-add" onclick="saveCondicionanteEdit()">✓ Salvar Alterações</button>
+      <button class="btn-clear" onclick="closeCondicionanteEdit()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CELL TOOLTIP ────────────────────────────────────────────────────── -->
+<div id="caTooltip" class="ca-tooltip"></div>
+
+<!-- ── TOAST ───────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── FIXED BOTTOM SCROLLBAR MIRROR ──────────────────────────────────── -->
+<div class="table-scroll-mirror" id="scrollMirror">
+  <div class="table-scroll-mirror-inner" id="scrollMirrorInner"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="CA.js"></script>
+</body>
+</html>
